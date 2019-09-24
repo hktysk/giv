@@ -60,10 +60,10 @@ var modefiedFilesTable = grid.set(15, 6, 5, 7, blessed_contrib_1.default.table, 
 });
 var markdown = grid.set(0, 13, 20, 7, blessed_contrib_1.default.markdown);
 var index = 0;
-var exec = '[' + child_process_1.execSync('cat log').toString().slice(0, -1) + ']';
+var exec = '[' + child_process_1.execSync('git log --pretty=format:\'{"subject": "%s","commiter": "%cN","date": "%cD"},\'').toString().trim().slice(0, -1) + ']';
 var t = JSON.parse(exec);
 var items = [];
-var tree = tree_1.default(child_process_1.execSync('cat graph').toString());
+var tree = tree_1.default(child_process_1.execSync('git log --graph --all --format="%x09"').toString().trim());
 for (var i = 0; i < t.length; i++) {
     var v = t[i];
     var subject = v.subject.length > 36 ? v.subject.slice(0, 36) + '...' : v.subject;

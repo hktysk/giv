@@ -60,10 +60,10 @@ const modefiedFilesTable: contrib.Widgets.TableElement = grid.set(15, 6, 5, 7, c
 const markdown: contrib.Widgets.MarkdownElement = grid.set(0, 13, 20, 7, contrib.markdown)
 
 let index: number = 0
-let exec: string = '[' + execSync('cat log').toString().slice(0, -1) + ']'
+let exec: string = '[' + execSync('git log --pretty=format:\'{"subject": "%s","commiter": "%cN","date": "%cD"},\'').toString().trim().slice(0, -1) + ']'
 let t = JSON.parse(exec)
 let items: string[][] = []
-const tree = convertTree(execSync('cat graph').toString())
+const tree = convertTree(execSync('git log --graph --all --format="%x09"').toString().trim())
 
 for (let i = 0; i < t.length; i++) {
   const v = t[i]
