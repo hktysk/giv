@@ -84,3 +84,8 @@ function getGitModifiedFiles(compareCommitId, comparedCommitId) {
     return files.trim().split('\n').map(function (x) { return [x]; });
 }
 exports.getGitModifiedFiles = getGitModifiedFiles;
+function createGitNewBranch(name) {
+    var sh = "git checkout -b " + name;
+    child_process_1.exec(sh);
+}
+exports.createGitNewBranch = createGitNewBranch;
