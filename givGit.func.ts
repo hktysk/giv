@@ -1,12 +1,12 @@
-import { execSync } from 'child_process'
+import { execSync, exec } from 'child_process'
 import colors from 'colors'
 import convertTree from './tree'
 
 export interface GitLog {
   id: string
-  commiter: string,
-  subject: string,
-  date: Date,
+  commiter: string
+  subject: string
+  date: Date
 }
 
 export function getGitLog(): GitLog[] {
@@ -63,4 +63,9 @@ export function getGitModifiedFiles(compareCommitId: string, comparedCommitId?: 
     : `git diff ${ compareCommitId } --name-only`
   const files: string = execSync(sh).toString()
   return files.trim().split('\n').map(x => [x])
+}
+
+export function createGitNewBranch(name: string): void {
+  const sh: string = `git checkout -b ${ name }`
+  exec(sh)
 }
