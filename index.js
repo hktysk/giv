@@ -1,4 +1,24 @@
 "use strict";
+var __read = (this && this.__read) || function (o, n) {
+    var m = typeof Symbol === "function" && o[Symbol.iterator];
+    if (!m) return o;
+    var i = m.call(o), r, ar = [], e;
+    try {
+        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);
+    }
+    catch (error) { e = { error: error }; }
+    finally {
+        try {
+            if (r && !r.done && (m = i["return"])) m.call(i);
+        }
+        finally { if (e) throw e.error; }
+    }
+    return ar;
+};
+var __spread = (this && this.__spread) || function () {
+    for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
+    return ar;
+};
 var __values = (this && this.__values) || function(o) {
     var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
     if (m) return m.call(o);
@@ -37,13 +57,12 @@ var givScreenName = {
 };
 var state = {
     location: givScreenName.main.commit,
-    commitIndex: 0
 };
-var Config = new giv.Config(blessed_1.default.screen());
+var Config = new giv.Config(blessed_1.default.screen({ smartCSR: true }));
 var grid = new blessed_contrib_1.default.grid(Config.Main.Grid);
 var givScreen = {
     main: {
-        commit: grid.set(0, 0, 15, 13, blessed_contrib_1.default.table, Config.Main.CommitTable),
+        commit: grid.set(0, 0, 15, 13, blessed_1.default.listtable, Config.Main.CommitTable),
         branch: grid.set(15, 0, 5, 6, blessed_contrib_1.default.table, Config.Main.BranchTable),
         modefied: grid.set(15, 6, 5, 7, blessed_contrib_1.default.table, Config.Main.ModefiedTable),
         diff: grid.set(0, 13, 20, 7, blessed_contrib_1.default.table, Config.Main.DiffTable),
@@ -60,6 +79,12 @@ var givScreen = {
         branchErrorLabel: blessed_1.default.text(Config.NewBranch.BranchErrorLabel)
     }
 };
+//const listTable = grid.set(0, 0, 15, 13, blessed.listtable, Config.Main.CommitTable)
+//listTable.setData([
+//  ['aiueo', 'kakikukeko', 'sasisuseso'],
+//  ['aiueo2', 'kakikukeko', 'sasisuseso'],
+//  ['aiueo3', 'kakikukeko', 'sasisusesaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao'],
+//])
 function switchScreen(screenName) {
     for (var k in givScreen) {
         if (k === screenName) {
@@ -89,7 +114,7 @@ for (var i = 0; i < gitLog.length; i++) {
     if (subject.length > subjectLimit) {
         subject = subject.slice(0, subjectLimit) + '...';
     }
-    subject = subject.indexOf('M') > -1 ?
+    subject = gitTree[i].indexOf('M') > -1 ?
         colors_1.default.yellow('✔ ') + colors_1.default.cyan(subject)
         : colors_1.default.green('» ') + subject;
     var date = moment_1.default(log.date);
@@ -106,10 +131,12 @@ for (var i = 0; i < gitLog.length; i++) {
         colors_1.default.gray(date.format('DD MMM HH:mm:ss').toLowerCase()),
     ]);
 }
-givScreen.main.commit.setData({
-    headers: [' TL', ' GRAPH', ' MESSAGE', ' AUTHOR', ' DATE'],
-    data: commits
-});
+console.log(__spread([
+    ['{ center }TL{/center }', '{ center }GRAPH{ /center }', '{ center }MESSAGE{ /center }', '{ center }AUTHOR{ /center }', '{ center }DATE{ /center }']
+], commits));
+givScreen.main.commit.setData(__spread([
+    ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE']
+], commits));
 var branches = giv.getGitBranches();
 givScreen.main.branch.setData({
     headers: [colors_1.default.gray(" " + branches.length + " branches")],
@@ -137,11 +164,9 @@ gitLog.length > 1 ?
     setDiffScreen(gitLog[0].id, gitLog[1].id)
     : setDiffScreen(gitLog[0].id);
 var timeout = [];
-var loadingTime = 300;
-Config.screen.key('down', function () {
+var loadingTime = 325;
+givScreen.main.commit.on('select item', function (_, index) {
     var e_1, _a;
-    if (state.commitIndex === gitLog.length - 1)
-        return;
     if (timeout) {
         try {
             for (var timeout_1 = __values(timeout), timeout_1_1 = timeout_1.next(); !timeout_1_1.done; timeout_1_1 = timeout_1.next()) {
@@ -157,41 +182,15 @@ Config.screen.key('down', function () {
             finally { if (e_1) throw e_1.error; }
         }
     }
-    state.commitIndex++;
     givScreen.loading.diff.show();
-    var isLastLog = (state.commitIndex === gitLog.length - 1);
+    index--;
     timeout.push(setTimeout(function () {
-        isLastLog ?
-            setDiffScreen(gitLog[state.commitIndex].id)
-            : setDiffScreen(gitLog[state.commitIndex].id, gitLog[state.commitIndex + 1].id);
-    }, loadingTime));
-});
-Config.screen.key('up', function () {
-    var e_2, _a;
-    if (state.commitIndex === 0)
-        return;
-    if (timeout) {
-        try {
-            for (var timeout_2 = __values(timeout), timeout_2_1 = timeout_2.next(); !timeout_2_1.done; timeout_2_1 = timeout_2.next()) {
-                var v = timeout_2_1.value;
-                clearTimeout(v);
-            }
+        if (index === 0 && gitLog.length > 1 && index !== gitLog.length - 1) {
+            setDiffScreen(gitLog[index].id, gitLog[index + 1].id);
         }
-        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-        finally {
-            try {
-                if (timeout_2_1 && !timeout_2_1.done && (_a = timeout_2.return)) _a.call(timeout_2);
-            }
-            finally { if (e_2) throw e_2.error; }
+        else {
+            setDiffScreen(gitLog[index].id);
         }
-    }
-    state.commitIndex--;
-    givScreen.loading.diff.show();
-    var isLastLog = (state.commitIndex === gitLog.length - 1);
-    timeout.push(setTimeout(function () {
-        isLastLog ?
-            setDiffScreen(gitLog[state.commitIndex].id)
-            : setDiffScreen(gitLog[state.commitIndex].id, gitLog[state.commitIndex + 1].id);
     }, loadingTime));
 });
 Config.screen.key('h', function () {
@@ -247,3 +246,4 @@ Config.screen.key(['escape', 'q', 'C-['], function () {
 });
 Config.screen.key(['C-c'], function () { return process.exit(0); });
 Config.screen.render();
+//listTable.focus()

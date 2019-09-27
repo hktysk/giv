@@ -15,18 +15,23 @@ var Config = /** @class */ (function () {
             },
             CommitTable: {
                 keys: true,
+                mouse: true,
                 parent: this.screen,
-                fg: 'white',
-                selectedFg: 'white',
-                selectedBg: 'black',
-                interactive: 'true',
                 label: 'COMMIT',
                 width: '48%',
                 height: '100%',
+                fg: 'white',
+                selectedFg: 'white',
+                selectedBg: 'black',
+                align: 'left',
+                interactive: 'true',
+                scrollable: true,
                 border: { type: 'line', fg: 'cyan' },
+                noCellBorders: true,
                 columnSpacing: 0,
                 columnWidth: [10, 10, 40, 13, 23],
-                alwaysScroll: true
+                alwaysScroll: true,
+                tags: true,
             },
             BranchTable: {
                 keys: true,
@@ -79,7 +84,7 @@ var Config = /** @class */ (function () {
                 padding: {
                     left: 20
                 },
-                content: "Loading ..."
+                content: "⭮ Loading "
             }
         };
         this.NewBranch = {

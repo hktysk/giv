@@ -16,18 +16,16 @@ const givScreenName: giv.ScreenName = {
 
 let state: {
   location: string,
-  commitIndex: number
 } = {
   location: givScreenName.main.commit,
-  commitIndex: 0
 }
 
-const Config: giv.Config = new giv.Config(blessed.screen())
+const Config: giv.Config = new giv.Config(blessed.screen({ smartCSR: true }))
 const grid: contrib.grid = new contrib.grid(Config.Main.Grid)
 
 const givScreen: giv.Screen = {
   main: {
-    commit: grid.set(0, 0, 15, 13, contrib.table, Config.Main.CommitTable),
+    commit: grid.set(0, 0, 15, 13, blessed.listtable, Config.Main.CommitTable),
     branch: grid.set(15, 0, 5, 6, contrib.table, Config.Main.BranchTable),
     modefied: grid.set(15, 6, 5, 7, contrib.table, Config.Main.ModefiedTable),
     diff: grid.set(0, 13, 20, 7, contrib.table, Config.Main.DiffTable),
@@ -44,6 +42,13 @@ const givScreen: giv.Screen = {
     branchErrorLabel: blessed.text(Config.NewBranch.BranchErrorLabel)
   }
 }
+
+//const listTable = grid.set(0, 0, 15, 13, blessed.listtable, Config.Main.CommitTable)
+//listTable.setData([
+//  ['aiueo', 'kakikukeko', 'sasisuseso'],
+//  ['aiueo2', 'kakikukeko', 'sasisuseso'],
+//  ['aiueo3', 'kakikukeko', 'sasisusesaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao'],
+//])
 
 function switchScreen(screenName: string): void {
   for (const k in givScreen) {
@@ -76,7 +81,7 @@ for (let i = 0; i < gitLog.length; i++) {
   if (subject.length > subjectLimit) {
     subject = subject.slice(0, subjectLimit) + '...'
   }
-  subject = subject.indexOf('M') > -1 ?
+  subject = gitTree[i].indexOf('M') > -1 ?
     colors.yellow('✔ ') + colors.cyan(subject)
     : colors.green('» ') + subject
 
@@ -97,10 +102,15 @@ for (let i = 0; i < gitLog.length; i++) {
   ])
 }
 
-givScreen.main.commit.setData({
-  headers: [' TL', ' GRAPH', ' MESSAGE', ' AUTHOR', ' DATE'],
-  data: commits
-})
+console.log([
+  ['{ center }TL{/center }', '{ center }GRAPH{ /center }', '{ center }MESSAGE{ /center }', '{ center }AUTHOR{ /center }', '{ center }DATE{ /center }'],
+  ...commits
+])
+
+givScreen.main.commit.setData([
+  ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE'],
+  ...commits
+])
 
 const branches: Array<string[]> = giv.getGitBranches()
 givScreen.main.branch.setData({
@@ -136,37 +146,21 @@ gitLog.length > 1 ?
   : setDiffScreen(gitLog[0].id)
 
 let timeout: NodeJS.Timeout[] = []
-let loadingTime = 300
-Config.screen.key('down', () => {
-  if (state.commitIndex === gitLog.length - 1) return
+let loadingTime = 325
+givScreen.main.commit.on('select item', (_, index) => {
   if (timeout) {
     for (const v of timeout)  clearTimeout(v)
   }
-  state.commitIndex++;
 
   givScreen.loading.diff.show()
 
-  const isLastLog: boolean = (state.commitIndex === gitLog.length - 1)
+  index--
   timeout.push(setTimeout(() => {
-    isLastLog ?
-      setDiffScreen(gitLog[state.commitIndex].id)
-    : setDiffScreen(gitLog[state.commitIndex].id, gitLog[state.commitIndex + 1].id)
-  }, loadingTime))
-})
-Config.screen.key('up', () => {
-  if (state.commitIndex === 0) return
-  if (timeout) {
-    for (const v of timeout)  clearTimeout(v)
-  }
-  state.commitIndex--;
-
-  givScreen.loading.diff.show()
-
-  const isLastLog: boolean = (state.commitIndex === gitLog.length - 1)
-  timeout.push(setTimeout(() => {
-    isLastLog ?
-      setDiffScreen(gitLog[state.commitIndex].id)
-    : setDiffScreen(gitLog[state.commitIndex].id, gitLog[state.commitIndex + 1].id)
+    if (index === 0 && gitLog.length > 1 && index !== gitLog.length - 1) {
+      setDiffScreen(gitLog[index].id, gitLog[index + 1].id)
+    } else {
+      setDiffScreen(gitLog[index].id)
+    }
   }, loadingTime))
 })
 
@@ -227,3 +221,5 @@ Config.screen.key(['escape', 'q', 'C-['], () => {
 Config.screen.key(['C-c'], () => process.exit(0))
 Config.screen.render()
 
+
+//listTable.focus()

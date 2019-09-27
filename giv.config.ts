@@ -14,7 +14,7 @@ export interface ScreenName {
 
 export interface Screen {
   main: {
-    commit: Widgets.TableElement
+    commit: blessed.Widgets.TableElement
     branch: Widgets.TableElement
     modefied: Widgets.TableElement
     diff: Widgets.TableElement
@@ -36,7 +36,7 @@ export interface givConfig {
   screen: blessed.Widgets.Screen
   Main: {
     Grid: Widgets.GridOptions
-    CommitTable: Widgets.TableOptions
+    CommitTable: any
     BranchTable: Widgets.TableOptions
     ModefiedTable: Widgets.TableOptions
     DiffTable: Widgets.TableOptions
@@ -49,8 +49,8 @@ export interface givConfig {
     Label: any
     Label2: any
     CreatedLabel: any
-    strErrorLabel: any
-    branchErrorLabel: any
+    StrErrorLabel: any
+    BranchErrorLabel: any
   }
 }
 
@@ -66,18 +66,23 @@ export class Config implements givConfig {
     },
     CommitTable: {
       keys: true,
+      mouse: true,
       parent: this.screen,
-      fg: 'white',
-      selectedFg: 'white',
-      selectedBg: 'black',
-      interactive: 'true',
       label: 'COMMIT',
       width: '48%',
       height: '100%',
+      fg: 'white',
+      selectedFg: 'white',
+      selectedBg: 'black',
+      align: 'left',
+      interactive: 'true',
+      scrollable: true,
       border: { type: 'line', fg: 'cyan' },
+      noCellBorders: true,
       columnSpacing: 0,
       columnWidth: [10, 10, 40, 13, 23],
-      alwaysScroll: true
+      alwaysScroll: true,
+      tags: true, // 色付けする場合は必須,
     },
     BranchTable: {
       keys: true,
@@ -131,7 +136,7 @@ export class Config implements givConfig {
       padding: {
         left: 20
       },
-      content: "Loading ..."
+      content: "⭮ Loading "
     }
   }
 
