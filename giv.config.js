@@ -26,26 +26,40 @@ var Config = /** @class */ (function () {
                 align: 'left',
                 interactive: 'true',
                 scrollable: true,
-                border: { type: 'line', fg: 'cyan' },
-                noCellBorders: true,
-                columnSpacing: 0,
-                columnWidth: [10, 10, 40, 13, 23],
                 alwaysScroll: true,
+                border: { type: 'line', fg: 'white' },
+                style: {
+                    focus: {
+                        border: { type: 'line', fg: 'white' },
+                    }
+                },
+                noCellBorders: true,
                 tags: true,
+                vi: false
             },
             BranchTable: {
                 keys: true,
+                mouse: true,
                 parent: this.screen,
+                label: 'CONTAINS',
+                width: '48%',
+                height: '100%',
                 fg: 'white',
                 selectedFg: 'white',
                 selectedBg: 'black',
+                align: 'left',
                 interactive: 'true',
-                label: 'BRANCH',
-                width: '48%',
-                height: '100%',
-                border: { type: 'line', fg: 'cyan' },
-                columnSpacing: 10,
-                columnWidth: [16, 12, 12],
+                scrollable: true,
+                alwaysScroll: true,
+                border: { type: 'line', fg: 'white' },
+                style: {
+                    focus: {
+                        border: { type: 'line', fg: 'white' },
+                    }
+                },
+                noCellBorders: true,
+                tags: true,
+                vi: true
             },
             ModefiedTable: {
                 keys: true,
@@ -63,28 +77,39 @@ var Config = /** @class */ (function () {
             },
             DiffTable: {
                 keys: true,
+                mouse: true,
                 parent: this.screen,
                 fg: 'white',
                 selectedFg: 'white',
                 selectedBg: 'black',
+                scrollable: true,
+                alwaysScroll: true,
+                scrollbar: {
+                    style: {
+                        bg: 'cyan'
+                    }
+                },
                 interactive: 'true',
                 label: '',
                 width: '48%',
                 height: '100%',
                 border: { type: 'line', fg: 'cyan' },
-                columnSpacing: 10,
-                columnWidth: [1000],
             }
         };
-        this.Loading = {
-            Diff: {
+        this.Help = {
+            Text: {
                 parent: this.screen,
-                align: "center",
-                valign: "middle",
-                padding: {
-                    left: 20
-                },
-                content: "⭮ Loading "
+                top: 'center',
+                left: 'center',
+                fg: 'white',
+                content: [
+                    '[a]add stage',
+                    '[b]checkout branch',
+                    '[c]commit',
+                    '[f]full screen',
+                    '[n]create new branch',
+                    '[q][C-\'[\'][esc]exit'
+                ].join('\n') + colors_1.default.cyan('\n\n\n\n\n[esc][q][C-\'[\'] back to main view')
             }
         };
         this.NewBranch = {
@@ -136,6 +161,21 @@ var Config = /** @class */ (function () {
                 top: '60%',
                 left: 'center',
                 content: colors_1.default.red('This name has already been registered')
+            }
+        };
+        this.CheckoutBranch = {
+            List: {
+                keys: true,
+                mouse: true,
+                parent: this.screen,
+                label: 'COMMIT',
+                top: 'center',
+                left: 'center',
+                fg: 'white',
+                selectedFg: 'white',
+                selectedBg: 'black',
+                scrollable: true,
+                alwaysScroll: true,
             }
         };
     }

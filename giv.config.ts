@@ -9,18 +9,20 @@ export interface ScreenName {
     modefied: string
     diff: string
   }
+  help: string
   newBranch: string
+  checkoutBranch: string
 }
 
 export interface Screen {
   main: {
     commit: blessed.Widgets.TableElement
-    branch: Widgets.TableElement
-    modefied: Widgets.TableElement
-    diff: Widgets.TableElement
+    branch: blessed.Widgets.BoxElement
+    modefied: blessed.Widgets.BoxElement
+    diff: blessed.Widgets.BoxElement
   }
-  loading: {
-    diff: any
+  help: {
+    text: any
   }
   newBranch: {
     name: blessed.Widgets.TextboxElement
@@ -29,6 +31,9 @@ export interface Screen {
     createdLabel: any
     strErrorLabel: any
     branchErrorLabel: any
+  },
+  checkoutBranch: {
+    list: blessed.Widgets.ListElement
   }
 }
 
@@ -37,12 +42,12 @@ export interface givConfig {
   Main: {
     Grid: Widgets.GridOptions
     CommitTable: any
-    BranchTable: Widgets.TableOptions
+    BranchTable: any
     ModefiedTable: Widgets.TableOptions
-    DiffTable: Widgets.TableOptions
+    DiffTable: any
   }
-  Loading: {
-    Diff: any
+  Help: {
+    Text:any
   }
   NewBranch: {
     Name: blessed.Widgets.TextboxOptions
@@ -51,6 +56,9 @@ export interface givConfig {
     CreatedLabel: any
     StrErrorLabel: any
     BranchErrorLabel: any
+  },
+  CheckoutBranch: {
+    List: any
   }
 }
 
@@ -77,26 +85,40 @@ export class Config implements givConfig {
       align: 'left',
       interactive: 'true',
       scrollable: true,
-      border: { type: 'line', fg: 'cyan' },
-      noCellBorders: true,
-      columnSpacing: 0,
-      columnWidth: [10, 10, 40, 13, 23],
       alwaysScroll: true,
+      border: { type: 'line', fg: 'white' },
+      style: {
+        focus: {
+          border: { type: 'line', fg: 'white' },
+        }
+      },
+      noCellBorders: true,
       tags: true, // 色付けする場合は必須,
+      vi: false
     },
     BranchTable: {
       keys: true,
+      mouse: true,
       parent: this.screen,
+      label: 'CONTAINS',
+      width: '48%',
+      height: '100%',
       fg: 'white',
       selectedFg: 'white',
       selectedBg: 'black',
+      align: 'left',
       interactive: 'true',
-      label: 'BRANCH',
-      width: '48%',
-      height: '100%',
-      border: { type: 'line', fg: 'cyan' },
-      columnSpacing: 10,
-      columnWidth: [16, 12, 12],
+      scrollable: true,
+      alwaysScroll: true,
+      border: { type: 'line', fg: 'white' },
+      style: {
+        focus: {
+          border: { type: 'line', fg: 'white' },
+        }
+      },
+      noCellBorders: true,
+      tags: true, // 色付けする場合は必須,
+      vi: true
     },
     ModefiedTable: {
       keys: true,
@@ -114,30 +136,41 @@ export class Config implements givConfig {
     },
     DiffTable: {
       keys: true,
+      mouse: true,
       parent: this.screen,
       fg: 'white',
       selectedFg: 'white',
       selectedBg: 'black',
+      scrollable: true,
+      alwaysScroll: true,
+      scrollbar: {
+        style: {
+          bg: 'cyan'
+        }
+      },
       interactive: 'true',
       label: '',
       width: '48%',
       height: '100%',
       border: { type: 'line', fg: 'cyan' },
-      columnSpacing: 10,
-      columnWidth: [1000],
     }
   }
 
-  Loading = {
-    Diff: {
-      parent: this.screen,
-      align: "center",
-      valign: "middle",
-      padding: {
-        left: 20
-      },
-      content: "⭮ Loading "
-    }
+  Help = {
+    Text: {
+        parent: this.screen,
+        top: 'center',
+        left: 'center',
+        fg: 'white',
+        content: [
+          '[a]add stage',
+          '[b]checkout branch',
+          '[c]commit',
+          '[f]full screen',
+          '[n]create new branch',
+          '[q][C-\'[\'][esc]exit'
+        ].join('\n') + colors.cyan('\n\n\n\n\n[esc][q][C-\'[\'] back to main view')
+      }
   }
 
   NewBranch = {
@@ -189,6 +222,22 @@ export class Config implements givConfig {
       top: '60%',
       left: 'center',
       content: colors.red('This name has already been registered')
+    }
+  }
+
+  CheckoutBranch = {
+    List: {
+      keys: true,
+      mouse: true,
+      parent: this.screen,
+      label: 'COMMIT',
+      top: 'center',
+      left: 'center',
+      fg: 'white',
+      selectedFg: 'white',
+      selectedBg: 'black',
+      scrollable: true,
+      alwaysScroll: true,
     }
   }
 }

@@ -29,10 +29,16 @@ function getGitTree() {
     return tree_1.default(gitTree);
 }
 exports.getGitTree = getGitTree;
+function getGitMerges() {
+    var sh = 'git log --merges --pretty=format:\'{"id": "%h"},\'';
+    var merges = child_process_1.execSync(sh).toString();
+    return JSON.parse('[' + merges.trim().slice(0, -1) + ']');
+}
+exports.getGitMerges = getGitMerges;
 function getGitBranches() {
     var sh = "git branch --sort=-authordate";
     var branches = child_process_1.execSync(sh).toString();
-    return branches.trim().split('\n').map(function (x) { return [x]; });
+    return branches.trim().split('\n');
 }
 exports.getGitBranches = getGitBranches;
 function getGitDiff(compareCommitId, comparedCommitId) {
@@ -64,6 +70,9 @@ function coloringGitDiff(diff) {
                 default:
                     d.push(colors_1.default.black(v));
             }
+            var k = d.length - 1;
+            var row = d.length;
+            d[k] = colors_1.default.cyan(("" + row).padStart(("" + diff.length).length, ' ')) + colors_1.default.cyan('│ ') + d[k];
         }
     }
     catch (e_1_1) { e_1 = { error: e_1_1 }; }
@@ -89,3 +98,8 @@ function createGitNewBranch(name) {
     child_process_1.exec(sh);
 }
 exports.createGitNewBranch = createGitNewBranch;
+function checkoutGitBranch(name) {
+    var sh = "git checkout " + name;
+    child_process_1.execSync(sh);
+}
+exports.checkoutGitBranch = checkoutGitBranch;

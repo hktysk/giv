@@ -1,4 +1,15 @@
 "use strict";
+var __values = (this && this.__values) || function(o) {
+    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
+    if (m) return m.call(o);
+    if (o && typeof o.length === "number") return {
+        next: function () {
+            if (o && i >= o.length) o = void 0;
+            return { value: o && o[i++], done: !o };
+        }
+    };
+    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
+};
 var __read = (this && this.__read) || function (o, n) {
     var m = typeof Symbol === "function" && o[Symbol.iterator];
     if (!m) return o;
@@ -19,17 +30,6 @@ var __spread = (this && this.__spread) || function () {
     for (var ar = [], i = 0; i < arguments.length; i++) ar = ar.concat(__read(arguments[i]));
     return ar;
 };
-var __values = (this && this.__values) || function(o) {
-    var s = typeof Symbol === "function" && Symbol.iterator, m = s && o[s], i = 0;
-    if (m) return m.call(o);
-    if (o && typeof o.length === "number") return {
-        next: function () {
-            if (o && i >= o.length) o = void 0;
-            return { value: o && o[i++], done: !o };
-        }
-    };
-    throw new TypeError(s ? "Object is not iterable." : "Symbol.iterator is not defined.");
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -40,6 +40,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var e_1, _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 var blessed_1 = __importDefault(require("blessed"));
 var blessed_contrib_1 = __importDefault(require("blessed-contrib"));
@@ -53,22 +54,24 @@ var givScreenName = {
         modefied: 'modefied',
         diff: 'diff'
     },
-    newBranch: 'newBranch'
+    help: 'help',
+    newBranch: 'newBranch',
+    checkoutBranch: 'checkoutBranch'
 };
 var state = {
     location: givScreenName.main.commit,
 };
-var Config = new giv.Config(blessed_1.default.screen({ smartCSR: true }));
+var Config = new giv.Config(blessed_1.default.screen({ smartCSR: true, title: 'giv' }));
 var grid = new blessed_contrib_1.default.grid(Config.Main.Grid);
 var givScreen = {
     main: {
-        commit: grid.set(0, 0, 15, 13, blessed_1.default.listtable, Config.Main.CommitTable),
-        branch: grid.set(15, 0, 5, 6, blessed_contrib_1.default.table, Config.Main.BranchTable),
-        modefied: grid.set(15, 6, 5, 7, blessed_contrib_1.default.table, Config.Main.ModefiedTable),
-        diff: grid.set(0, 13, 20, 7, blessed_contrib_1.default.table, Config.Main.DiffTable),
+        commit: grid.set(0, 0, 10, 20, blessed_1.default.listtable, Config.Main.CommitTable),
+        branch: grid.set(10, 4, 10, 4, blessed_1.default.box, Config.Main.BranchTable),
+        modefied: grid.set(10, 0, 10, 4, blessed_1.default.box, Config.Main.ModefiedTable),
+        diff: grid.set(10, 8, 10, 12, blessed_1.default.box, Config.Main.DiffTable),
     },
-    loading: {
-        diff: grid.set(0, 13, 20, 7, blessed_1.default.text, Config.Loading.Diff)
+    help: {
+        text: blessed_1.default.text(Config.Help.Text)
     },
     newBranch: {
         name: blessed_1.default.textbox(Config.NewBranch.Name),
@@ -77,14 +80,25 @@ var givScreen = {
         createdLabel: blessed_1.default.text(Config.NewBranch.CreatedLabel),
         strErrorLabel: blessed_1.default.text(Config.NewBranch.StrErrorLabel),
         branchErrorLabel: blessed_1.default.text(Config.NewBranch.BranchErrorLabel)
-    }
+    },
+    checkoutBranch: {
+        list: blessed_1.default.list(Config.CheckoutBranch.List)
+    },
 };
-//const listTable = grid.set(0, 0, 15, 13, blessed.listtable, Config.Main.CommitTable)
-//listTable.setData([
-//  ['aiueo', 'kakikukeko', 'sasisuseso'],
-//  ['aiueo2', 'kakikukeko', 'sasisuseso'],
-//  ['aiueo3', 'kakikukeko', 'sasisusesaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaao'],
-//])
+var checkoutBranches = giv.getGitBranches();
+try {
+    for (var checkoutBranches_1 = __values(checkoutBranches), checkoutBranches_1_1 = checkoutBranches_1.next(); !checkoutBranches_1_1.done; checkoutBranches_1_1 = checkoutBranches_1.next()) {
+        var v = checkoutBranches_1_1.value;
+        givScreen.checkoutBranch.list.addItem(v);
+    }
+}
+catch (e_1_1) { e_1 = { error: e_1_1 }; }
+finally {
+    try {
+        if (checkoutBranches_1_1 && !checkoutBranches_1_1.done && (_a = checkoutBranches_1.return)) _a.call(checkoutBranches_1);
+    }
+    finally { if (e_1) throw e_1.error; }
+}
 function switchScreen(screenName) {
     for (var k in givScreen) {
         if (k === screenName) {
@@ -105,21 +119,27 @@ function screenInit() {
 switchScreen('main');
 givScreen.main.commit.focus();
 var gitLog = giv.getGitLog();
+var gitMerges = giv.getGitMerges().map(function (x) { return x.id; });
 var gitTree = giv.getGitTree();
 var commits = [];
-var subjectLimit = 36;
+var subjectLimit = 75;
 for (var i = 0; i < gitLog.length; i++) {
     var log = gitLog[i];
     var subject = log.subject;
     if (subject.length > subjectLimit) {
         subject = subject.slice(0, subjectLimit) + '...';
     }
-    subject = gitTree[i].indexOf('M') > -1 ?
-        colors_1.default.yellow('✔ ') + colors_1.default.cyan(subject)
-        : colors_1.default.green('» ') + subject;
+    if (gitMerges.indexOf(log.id) > -1) {
+        gitTree[i] = gitTree[i].replace('*', 'M');
+        subject = colors_1.default.yellow('✔ ') + colors_1.default.cyan(subject);
+    }
+    else {
+        subject = colors_1.default.green('» ') + subject;
+    }
+    subject = subject.padEnd(70, '  ');
     var date = moment_1.default(log.date);
     var TL = date.fromNow(true).replace('a few', '1').split(' ');
-    TL[0] = TL[0].padStart(2, ' ').replace('a', '1');
+    TL[0] = TL[0].replace(/(an|a)/, '1').padStart(2, ' ');
     TL[1] = TL[1].replace(/(hours|hour)/, 'h').replace(/(minutes|minute)/, 'm').replace(/(seconds|second)/, 's');
     var tree = gitTree[i].split('').map(function (x) { return colors_1.default.cyan(x); }).join('');
     tree = tree.replace('M', colors_1.default.yellow('M')).replace('*', colors_1.default.green('c'));
@@ -131,69 +151,36 @@ for (var i = 0; i < gitLog.length; i++) {
         colors_1.default.gray(date.format('DD MMM HH:mm:ss').toLowerCase()),
     ]);
 }
-console.log(__spread([
-    ['{ center }TL{/center }', '{ center }GRAPH{ /center }', '{ center }MESSAGE{ /center }', '{ center }AUTHOR{ /center }', '{ center }DATE{ /center }']
-], commits));
 givScreen.main.commit.setData(__spread([
     ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE']
 ], commits));
 var branches = giv.getGitBranches();
-givScreen.main.branch.setData({
-    headers: [colors_1.default.gray(" " + branches.length + " branches")],
-    data: branches
-});
+givScreen.main.branch.setContent(colors_1.default.gray(" " + branches.length + " branches") + ("\n" + branches.join('\n')));
 function setDiffScreen(compareCommitId, comparedCommitId) {
     var diff = comparedCommitId ?
         giv.getGitDiff(compareCommitId, comparedCommitId)
         : giv.getGitDiff(compareCommitId);
-    givScreen.main.diff.setData({
-        headers: [''],
-        data: giv.coloringGitDiff(diff)
-    });
+    givScreen.main.diff.setContent(giv.coloringGitDiff(diff).map(function (x) { return x[0]; }).join('\n'));
     var modefiedFiles = comparedCommitId ?
         giv.getGitModifiedFiles(compareCommitId, comparedCommitId)
         : giv.getGitModifiedFiles(compareCommitId);
-    givScreen.main.modefied.setData({
-        headers: [colors_1.default.gray(" " + modefiedFiles.length + " Files")],
-        data: modefiedFiles
-    });
-    givScreen.loading.diff.hide();
+    givScreen.main.modefied.setContent(colors_1.default.gray(" " + modefiedFiles.length + " Files") + ("\n" + modefiedFiles.join('\n')));
     Config.screen.render();
 }
 gitLog.length > 1 ?
     setDiffScreen(gitLog[0].id, gitLog[1].id)
     : setDiffScreen(gitLog[0].id);
-var timeout = [];
-var loadingTime = 325;
 givScreen.main.commit.on('select item', function (_, index) {
-    var e_1, _a;
-    if (timeout) {
-        try {
-            for (var timeout_1 = __values(timeout), timeout_1_1 = timeout_1.next(); !timeout_1_1.done; timeout_1_1 = timeout_1.next()) {
-                var v = timeout_1_1.value;
-                clearTimeout(v);
-            }
-        }
-        catch (e_1_1) { e_1 = { error: e_1_1 }; }
-        finally {
-            try {
-                if (timeout_1_1 && !timeout_1_1.done && (_a = timeout_1.return)) _a.call(timeout_1);
-            }
-            finally { if (e_1) throw e_1.error; }
-        }
-    }
-    givScreen.loading.diff.show();
     index--;
-    timeout.push(setTimeout(function () {
-        if (index === 0 && gitLog.length > 1 && index !== gitLog.length - 1) {
-            setDiffScreen(gitLog[index].id, gitLog[index + 1].id);
-        }
-        else {
-            setDiffScreen(gitLog[index].id);
-        }
-    }, loadingTime));
+    if (index === 0 && gitLog.length > 1 && index !== gitLog.length - 1) {
+        setDiffScreen(gitLog[index].id, gitLog[index + 1].id);
+    }
+    else {
+        setDiffScreen(gitLog[index].id);
+    }
+    givScreen.main.diff.resetScroll();
 });
-Config.screen.key('h', function () {
+Config.screen.key('n', function () {
     switchScreen('newBranch');
     givScreen.newBranch.createdLabel.hide();
     givScreen.newBranch.strErrorLabel.hide();
@@ -208,7 +195,7 @@ givScreen.newBranch.name.key(['enter'], function () {
     newBranch.label.hide();
     newBranch.label2.hide();
     Config.screen.render();
-    var branches = giv.getGitBranches().map(function (x) { return x[0].replace('*', '').trim(); });
+    var branches = giv.getGitBranches().map(function (x) { return x.replace('*', '').trim(); });
     if (branches.indexOf(name) > -1) {
         newBranch.branchErrorLabel.show();
         Config.screen.render();
@@ -238,11 +225,43 @@ givScreen.newBranch.name.key(['enter'], function () {
     }, 2000);
 });
 Config.screen.key(['escape', 'q', 'C-['], function () {
-    if (state.location === givScreenName.newBranch) {
+    if (state.location !== givScreenName.main.commit) {
         screenInit();
         return;
     }
     process.exit(0);
+});
+givScreen.main.commit.key('j', function () {
+    for (var i = 1; i <= 10; i++) {
+        setTimeout(function () {
+            givScreen.main.diff.scroll(1);
+            Config.screen.render();
+        }, i * 20);
+    }
+});
+givScreen.main.commit.key('k', function () {
+    for (var i = 1; i <= 10; i++) {
+        setTimeout(function () {
+            givScreen.main.diff.scroll(-1);
+            Config.screen.render();
+        }, i * 20);
+    }
+});
+Config.screen.key('h', function () {
+    state.location = givScreenName.help;
+    switchScreen('help');
+    Config.screen.render();
+});
+Config.screen.key('b', function () {
+    state.location = givScreenName.checkoutBranch;
+    switchScreen('checkoutBranch');
+    givScreen.checkoutBranch.list.focus();
+    Config.screen.render();
+});
+givScreen.checkoutBranch.list.key('enter', function () {
+    var index = givScreen.checkoutBranch.list.getItemIndex(this.selected);
+    giv.checkoutGitBranch(checkoutBranches[index]);
+    screenInit();
 });
 Config.screen.key(['C-c'], function () { return process.exit(0); });
 Config.screen.render();

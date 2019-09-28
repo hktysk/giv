@@ -21,10 +21,19 @@ export function getGitTree(): string[] {
   return convertTree(gitTree)
 }
 
-export function getGitBranches(): Array<string[]> {
+export interface GitMerge {
+  id: string
+}
+export function getGitMerges(): GitMerge[] {
+  const sh: string = 'git log --merges --pretty=format:\'{"id": "%h"},\''
+  const merges: string = execSync(sh).toString()
+  return JSON.parse('[' + merges.trim().slice(0, -1) + ']')
+}
+
+export function getGitBranches(): string[] {
   const sh: string = `git branch --sort=-authordate`
   const branches: string = execSync(sh).toString()
-  return branches.trim().split('\n').map(x => [x])
+  return branches.trim().split('\n')
 }
 
 export function getGitDiff(compareCommitId: string, comparedCommitId?: string): string[] {
@@ -53,6 +62,9 @@ export function coloringGitDiff(diff: string[]): Array<string[]> {
       default:
         d.push(colors.black(v))
     }
+    const k = d.length - 1
+    const row = d.length
+    d[k] = colors.cyan(`${ row }`.padStart(`${ diff.length }`.length, ' ')) + colors.cyan('│ ') + d[k]
   }
   return d.map(x => [x])
 }
@@ -68,4 +80,9 @@ export function getGitModifiedFiles(compareCommitId: string, comparedCommitId?: 
 export function createGitNewBranch(name: string): void {
   const sh: string = `git checkout -b ${ name }`
   exec(sh)
+}
+
+export function checkoutGitBranch(name: string): void {
+  const sh: string = `git checkout ${ name }`
+  execSync(sh)
 }
