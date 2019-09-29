@@ -16,7 +16,7 @@ export function getGitLog(): GitLog[] {
 }
 
 export function getGitTree(): string[] {
-  const sh = 'git log --graph --all --format="%x09"'
+  const sh = 'git log --graph --format="%x09"'
   const gitTree: string = execSync(sh).toString().trim()
   return convertTree(gitTree)
 }

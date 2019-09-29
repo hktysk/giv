@@ -44,7 +44,7 @@ const givScreen: giv.Screen = {
     branchErrorLabel: blessed.text(Config.NewBranch.BranchErrorLabel)
   },
   checkoutBranch: {
-    list: blessed.list(Config.CheckoutBranch.List)
+    list: grid.set(5, 5, 10, 10, blessed.list, Config.CheckoutBranch.List)
   },
 }
 

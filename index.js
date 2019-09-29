@@ -82,7 +82,7 @@ var givScreen = {
         branchErrorLabel: blessed_1.default.text(Config.NewBranch.BranchErrorLabel)
     },
     checkoutBranch: {
-        list: blessed_1.default.list(Config.CheckoutBranch.List)
+        list: grid.set(5, 5, 10, 10, blessed_1.default.list, Config.CheckoutBranch.List)
     },
 };
 var checkoutBranches = giv.getGitBranches();

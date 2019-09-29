@@ -24,7 +24,7 @@ function getGitLog() {
 }
 exports.getGitLog = getGitLog;
 function getGitTree() {
-    var sh = 'git log --graph --all --format="%x09"';
+    var sh = 'git log --graph --format="%x09"';
     var gitTree = child_process_1.execSync(sh).toString().trim();
     return tree_1.default(gitTree);
 }
