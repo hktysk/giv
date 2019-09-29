@@ -167,7 +167,10 @@ export class Config implements givConfig {
           '[b]checkout branch',
           '[c]commit',
           '[f]full screen',
+          '[h]help',
           '[n]create new branch',
+          '[j]diff view scroll to bottom',
+          '[k]diff view scroll to top',
           '[q][C-\'[\'][esc]exit'
         ].join('\n') + colors.cyan('\n\n\n\n\n[esc][q][C-\'[\'] back to main view')
       }

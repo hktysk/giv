@@ -86,3 +86,8 @@ export function checkoutGitBranch(name: string): void {
   const sh: string = `git checkout ${ name }`
   execSync(sh)
 }
+
+export function getNowGitBranch(): string {
+  const sh: string = 'git rev-parse --abbrev-ref HEAD 2> /dev/null'
+  return execSync(sh).toString().trim()
+}

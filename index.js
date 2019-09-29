@@ -154,7 +154,7 @@ for (var i = 0; i < gitLog.length; i++) {
 givScreen.main.commit.setData(__spread([
     ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE']
 ], commits));
-givScreen.main.commit.setLabel("" + colors_1.default.green(' * master '));
+givScreen.main.commit.setLabel(" " + colors_1.default.green(giv.getNowGitBranch()) + " ");
 var branches = giv.getGitBranches();
 givScreen.main.branch.setContent(colors_1.default.gray(" " + branches.length + " branches") + ("\n" + branches.join('\n')));
 function setDiffScreen(compareCommitId, comparedCommitId) {

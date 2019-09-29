@@ -103,3 +103,8 @@ function checkoutGitBranch(name) {
     child_process_1.execSync(sh);
 }
 exports.checkoutGitBranch = checkoutGitBranch;
+function getNowGitBranch() {
+    var sh = 'git rev-parse --abbrev-ref HEAD 2> /dev/null';
+    return child_process_1.execSync(sh).toString().trim();
+}
+exports.getNowGitBranch = getNowGitBranch;

@@ -114,7 +114,7 @@ givScreen.main.commit.setData([
   ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE'],
   ...commits
 ])
-givScreen.main.commit.setLabel(`${ colors.green(' * master ') }`)
+givScreen.main.commit.setLabel(` ${ colors.green(giv.getNowGitBranch()) } `)
 
 const branches: string[] = giv.getGitBranches()
 givScreen.main.branch.setContent(colors.gray(` ${ branches.length } branches`) + `\n${ branches.join('\n')}`)
