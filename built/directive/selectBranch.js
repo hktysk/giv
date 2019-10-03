@@ -15,7 +15,7 @@ exports.selectBranch = {
         s.SelectBranch.list.focus();
         s.screen.render();
     },
-    checkout: function (s) {
+    checkout: function (s, name) {
         if (giv.isOkGitCheckout() === false) {
             s.SelectBranch.checkoutError.show();
             s.screen.render();
@@ -25,7 +25,7 @@ exports.selectBranch = {
             }, 3000);
             return;
         }
-        var index = s.SelectBranch.list.getItemIndex(this.selected);
+        var index = s.SelectBranch.list.getItemIndex(name);
         giv.checkoutGitBranch(giv.getGitBranches()[index]);
         s.init();
     }

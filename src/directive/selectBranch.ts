@@ -8,7 +8,7 @@ export const selectBranch = {
     s.SelectBranch.list.focus()
     s.screen.render()
   },
-  checkout(s: Screen): void {
+  checkout(s: Screen, name: string): void {
     if (giv.isOkGitCheckout() === false) {
       s.SelectBranch.checkoutError.show()
       s.screen.render()
@@ -21,7 +21,7 @@ export const selectBranch = {
       return
     }
 
-    const index = s.SelectBranch.list.getItemIndex(this.selected)
+    const index = s.SelectBranch.list.getItemIndex(name)
     giv.checkoutGitBranch(giv.getGitBranches()[index])
     s.init()
   }

@@ -29,6 +29,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
+var _this = this;
 Object.defineProperty(exports, "__esModule", { value: true });
 var blessed_1 = __importDefault(require("blessed"));
 var colors_1 = __importDefault(require("colors"));
@@ -132,7 +133,7 @@ Screen.key('b', function () {
     directive.selectBranch.show(s);
     dispatch.cheangedMainScreen();
 });
-s.SelectBranch.list.key('enter', function () { return directive.selectBranch.checkout(s); });
+s.SelectBranch.list.key('enter', function () { return directive.selectBranch.checkout(s, _this.selected); });
 Screen.key(['escape', 'q', 'C-['], function () {
     if (state.isMainScreen === false) {
         s.init();
