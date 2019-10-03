@@ -135,7 +135,9 @@ Screen.key('b', () => {
   dispatch.cheangedMainScreen()
 })
 
-s.SelectBranch.list.key('enter', () => directive.selectBranch.checkout(s, this.selected))
+s.SelectBranch.list.key('enter', function() {
+  directive.selectBranch.checkout(s, this.selected)
+})
 
 Screen.key(['escape', 'q', 'C-['], () => {
   if (state.isMainScreen === false) {
