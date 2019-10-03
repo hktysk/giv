@@ -85,6 +85,7 @@ var givScreen = {
         list: grid.set(5, 5, 10, 10, blessed_1.default.list, Config.CheckoutBranch.List)
     },
 };
+console.log('aiuep');
 var checkoutBranches = giv.getGitBranches();
 try {
     for (var checkoutBranches_1 = __values(checkoutBranches), checkoutBranches_1_1 = checkoutBranches_1.next(); !checkoutBranches_1_1.done; checkoutBranches_1_1 = checkoutBranches_1.next()) {

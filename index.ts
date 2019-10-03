@@ -48,6 +48,7 @@ const givScreen: giv.Screen = {
   },
 }
 
+console.log('aiuep')
 const checkoutBranches = giv.getGitBranches()
 for (const v of checkoutBranches) {
   givScreen.checkoutBranch.list.addItem(v)
