@@ -58,7 +58,6 @@ export default class Main implements Frames {
 
   contains = this.grid.set(10, 4, 10, 4, blessed.box, {
     keys: true,
-    mouse: true,
     parent: this.screen,
     label: 'CONTAINS',
     width: '48%',
@@ -83,7 +82,6 @@ export default class Main implements Frames {
 
   diff = this.grid.set(10, 8, 10, 12, blessed.box, {
     keys: true,
-    mouse: true,
     parent: this.screen,
     fg: 'white',
     selectedFg: 'white',

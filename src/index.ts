@@ -77,8 +77,6 @@ s.Main.commit.setData([
 ])
 s.Main.commit.setLabel(` ${ colors.green(giv.getNowGitBranch()) } `)
 
-const branches: string[] = giv.getGitBranches()
-s.Main.contains.setContent(colors.gray(` ${ branches.length } branches`) + `\n${ branches.join('\n')}`)
 
 function setDiffScreen (compareCommitId: string, comparedCommitId?: string): void {
   const diff: string[] = comparedCommitId ?
@@ -98,6 +96,12 @@ function setDiffScreen (compareCommitId: string, comparedCommitId?: string): voi
   s.Main.modefied.setContent(
     colors.gray(` ${ modefiedFiles.length } Files`)
     + `\n${ modefiedFiles.join('\n') }`
+  )
+
+  const contains: string[] = giv.getGitContains(compareCommitId)
+  s.Main.contains.setContent(
+    colors.gray(` ${ contains.length } branches`)
+    + `\n${ contains.join('\n')}`
   )
 
   Screen.render()

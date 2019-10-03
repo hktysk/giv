@@ -74,7 +74,7 @@ export function getGitModifiedFiles(compareCommitId: string, comparedCommitId?: 
     `git diff ${ compareCommitId } ${ comparedCommitId } --name-only`
     : `git diff ${ compareCommitId } --name-only`
   const files: string = execSync(sh).toString()
-  return files.trim().split('\n').map(x => [x])
+  return files.trim().split('\n').map(x => [colors.black('- ') + x])
 }
 
 export function createGitNewBranch(name: string): void {
@@ -95,4 +95,9 @@ export function getNowGitBranch(): string {
 export function isOkGitCheckout(): boolean {
   const sh: string = 'git diff --name-only'
   return (execSync(sh).toString().trim().length === 0)
+}
+
+export function getGitContains(id: string): string[] {
+  const sh: string = `git branch --contains ${ id }`
+  return execSync(sh).toString().split('\n')
 }
