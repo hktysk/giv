@@ -48,7 +48,6 @@ var Main = /** @class */ (function () {
         });
         this.contains = this.grid.set(10, 4, 10, 4, blessed_1.default.box, {
             keys: true,
-            mouse: true,
             parent: this.screen,
             label: 'CONTAINS',
             width: '48%',
@@ -72,7 +71,6 @@ var Main = /** @class */ (function () {
         });
         this.diff = this.grid.set(10, 8, 10, 12, blessed_1.default.box, {
             keys: true,
-            mouse: true,
             parent: this.screen,
             fg: 'white',
             selectedFg: 'white',

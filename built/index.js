@@ -88,8 +88,6 @@ s.Main.commit.setData(__spread([
     ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE']
 ], commits));
 s.Main.commit.setLabel(" " + colors_1.default.green(giv.getNowGitBranch()) + " ");
-var branches = giv.getGitBranches();
-s.Main.contains.setContent(colors_1.default.gray(" " + branches.length + " branches") + ("\n" + branches.join('\n')));
 function setDiffScreen(compareCommitId, comparedCommitId) {
     var diff = comparedCommitId ?
         giv.getGitDiff(compareCommitId, comparedCommitId)
@@ -102,6 +100,9 @@ function setDiffScreen(compareCommitId, comparedCommitId) {
         : giv.getGitModifiedFiles(compareCommitId);
     s.Main.modefied.setContent(colors_1.default.gray(" " + modefiedFiles.length + " Files")
         + ("\n" + modefiedFiles.join('\n')));
+    var contains = giv.getGitContains(compareCommitId);
+    s.Main.contains.setContent(colors_1.default.gray(" " + contains.length + " branches")
+        + ("\n" + contains.join('\n')));
     Screen.render();
 }
 gitLog.length > 1 ?

@@ -90,7 +90,7 @@ function getGitModifiedFiles(compareCommitId, comparedCommitId) {
         "git diff " + compareCommitId + " " + comparedCommitId + " --name-only"
         : "git diff " + compareCommitId + " --name-only";
     var files = child_process_1.execSync(sh).toString();
-    return files.trim().split('\n').map(function (x) { return [x]; });
+    return files.trim().split('\n').map(function (x) { return [colors_1.default.black('- ') + x]; });
 }
 exports.getGitModifiedFiles = getGitModifiedFiles;
 function createGitNewBranch(name) {
@@ -113,3 +113,8 @@ function isOkGitCheckout() {
     return (child_process_1.execSync(sh).toString().trim().length === 0);
 }
 exports.isOkGitCheckout = isOkGitCheckout;
+function getGitContains(id) {
+    var sh = "git branch --contains " + id;
+    return child_process_1.execSync(sh).toString().split('\n');
+}
+exports.getGitContains = getGitContains;
