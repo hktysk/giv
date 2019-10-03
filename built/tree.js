@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+var colors_1 = __importDefault(require("colors"));
 var gitTreeSymbol = {
     commit: '*',
     vertical: '|',
@@ -125,4 +129,20 @@ function convertTree(s) {
     }
     return r(tree);
 }
-exports.default = convertTree;
+exports.convertTree = convertTree;
+function coloringTree(tree, commitId, mergeId) {
+    tree.forEach(function (v, k) {
+        if (mergeId.indexOf(commitId[k]) > -1) {
+            v = v.replace('*', 'M');
+        }
+        v = v.split('')
+            .map(function (x) { return colors_1.default.cyan(x); })
+            .join('');
+        v = v
+            .replace('M', colors_1.default.yellow('M'))
+            .replace('*', colors_1.default.green('c'));
+        tree[k] = v;
+    });
+    return tree;
+}
+exports.coloringTree = coloringTree;

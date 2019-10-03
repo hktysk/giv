@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "tsc": "npx tsc --target es5 --lib es6,dom --esModuleInterop --downlevelIteration",
-    "start": "node index.js"
+    "tsc": "npx tsc --target es5 --lib es6,dom --esModuleInterop --downlevelIteration --outDir ./built --rootDir ./src",
+    "start": "node built/index.js"
   },
   "author": "",
   "license": "ISC",

@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var child_process_1 = require("child_process");
 var colors_1 = __importDefault(require("colors"));
-var tree_1 = __importDefault(require("./tree"));
+var tree_1 = require("./tree");
 function getGitLog() {
     var sh = 'git log --pretty=format:\'{"id": "%h","commiter": "%cN","subject": "%s","date": "%cD"},\'';
     var log = child_process_1.execSync(sh).toString();
@@ -26,7 +26,7 @@ exports.getGitLog = getGitLog;
 function getGitTree() {
     var sh = 'git log --graph --format="%x09"';
     var gitTree = child_process_1.execSync(sh).toString().trim();
-    return tree_1.default(gitTree);
+    return tree_1.convertTree(gitTree);
 }
 exports.getGitTree = getGitTree;
 function getGitMerges() {
@@ -108,3 +108,8 @@ function getNowGitBranch() {
     return child_process_1.execSync(sh).toString().trim();
 }
 exports.getNowGitBranch = getNowGitBranch;
+function isOkGitCheckout() {
+    var sh = 'git diff --name-only';
+    return (child_process_1.execSync(sh).toString().trim().length === 0);
+}
+exports.isOkGitCheckout = isOkGitCheckout;
