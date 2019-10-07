@@ -8,45 +8,56 @@ var Main = /** @class */ (function () {
     function Main(screen, grid) {
         this.screen = screen;
         this.grid = grid;
-        this.commit = this.grid.set(0, 0, 10, 20, blessed_1.default.listtable, {
+        this.commit = this.grid.set(0, 0, 13, 20, blessed_1.default.list, {
             keys: true,
             mouse: true,
             parent: this.screen,
             label: 'COMMIT',
             width: '48%',
             height: '100%',
-            fg: 'white',
-            selectedFg: 'white',
-            selectedBg: 'black',
+            selectedFg: 'black',
+            selectedBg: 'white',
             align: 'left',
             interactive: 'true',
             scrollable: true,
             alwaysScroll: true,
-            border: { type: 'line', fg: 'white' },
+            border: { type: 'line' },
             style: {
-                focus: {
-                    border: { type: 'line', fg: 'white' },
+                fg: 'white',
+                bg: 234,
+                border: {
+                    fg: 'cyan',
+                    bg: 234
+                },
+                label: {
+                    bg: 234
                 }
             },
             noCellBorders: true,
             tags: true,
             vi: false
         });
-        this.modefied = this.grid.set(10, 0, 10, 4, blessed_1.default.box, {
+        this.modefied = this.grid.set(13, 0, 7, 20, blessed_1.default.box, {
             keys: true,
             parent: this.screen,
-            fg: 'white',
             selectedFg: 'white',
             selectedBg: 'black',
             interactive: 'true',
-            label: 'MODEFIED',
             width: '48%',
             height: '100%',
-            border: { type: 'line', fg: 'cyan' },
-            columnSpacing: 10,
-            columnWidth: [16, 12, 12],
+            border: { type: 'line' },
+            style: {
+                bg: 234,
+                border: {
+                    fg: 'cyan',
+                    bg: 234
+                },
+                label: {
+                    bg: 234
+                }
+            },
         });
-        this.contains = this.grid.set(10, 4, 10, 4, blessed_1.default.box, {
+        this.contains = this.grid.set(0, 0, 0, 0, blessed_1.default.box, {
             keys: true,
             parent: this.screen,
             label: 'CONTAINS',
@@ -69,7 +80,7 @@ var Main = /** @class */ (function () {
             tags: true,
             vi: true
         });
-        this.diff = this.grid.set(10, 8, 10, 12, blessed_1.default.box, {
+        this.diff = this.grid.set(0, 0, 0, 0, blessed_1.default.box, {
             keys: true,
             parent: this.screen,
             fg: 'white',

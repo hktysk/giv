@@ -1,149 +1,137 @@
 import blessed from 'blessed'
-import contrib from 'blessed-contrib'
-import colors from 'colors'
-import moment from 'moment'
-import * as giv from './giv.modules'
-import * as directive from './directive/index'
-import sc from './screen/screen.module'
+import CreateScreen from './screen'
+import Directive from './directive'
+import * as Git from './git'
 
+/*******************************
+* Initial setting
+/******************************/
+const s = new CreateScreen(blessed.screen({
+  smartCSR: true,
+  title: 'giv'
+}))
+
+s.init() // Show Main screen and hide other screens
+
+const directive = new Directive(s)
+
+/********************************
+* Prepare state
+/*******************************/
 let state: {
-  isMainScreen: boolean,
+  isMainScreen: boolean
 } = {
-  isMainScreen: true
+  isMainScreen: true,
 }
 
 const dispatch: {
   cheangedMainScreen(): boolean
-  init(): boolean
+  init(): boolean,
 } = {
-  cheangedMainScreen: (): boolean => (state.isMainScreen = false),
-  init: (): boolean => (state.isMainScreen = true)
+  cheangedMainScreen: () => (state.isMainScreen = false),
+  init: () => (state.isMainScreen = true),
 }
 
-const Screen: blessed.Widgets.Screen = blessed.screen({
-  smartCSR: true,
-  title: 'giv'
-})
-const s = new sc(Screen)
-giv.getGitBranches().forEach(name => s.SelectBranch.list.addItem(name))
+/*********************************
+* Process for setting items.
+*********************************/
+let logs: Git.Log[]
+let tree: string[] // Store git tree line by line
 
-s.init()
+function setScreenItems(name?: string): void {
+  // 'name' means branch name
+  logs = Git.getLog(name && name)
+  tree = Git.coloringTree(
+    Git.getTree(name && name),
+    logs.map(x => x.id),
+    Git.getMerge(name && name).map(x => x.id)
+  )
 
-const gitLog: giv.GitLog[] = giv.getGitLog()
-const gitMerges: string[] = giv.getGitMerges().map(x => x.id)
-let tree: string[] = giv.getGitTree()
-tree = giv.coloringTree(tree, gitLog.map(x => x.id), gitMerges)
-let commits: Array<string[]> = []
-const subjectMax: number = 75
-const subjectMin: number = 70
+  directive.main.commit.set(logs, tree)
+  directive.main.modefied.set(logs[0].id)
 
-for (let i = 0; i < gitLog.length; i++) {
-  const log: giv.GitLog = gitLog[i]
-  let subject: string = log.subject
+  s.SelectBranch.list.clearItems()
+  Git.getAllBranches().forEach(name => s.SelectBranch.list.addItem(name))
 
-  if (subject.length > subjectMax) {
-    subject = subject.slice(0, subjectMax) + '...'
-  }
-  subject = tree.indexOf('M') > -1 ?
-    `${ colors.yellow('✔') } ${ colors.cyan(subject)}`
-    : `${ colors.green('»') } ${ subject }`
-
-  subject = subject.padEnd(subjectMin, '  ')
-
-  const date: moment.Moment = moment(log.date)
-  let TL: string[] = date.fromNow(true).replace('a few', '1').split(' ')
-
-  TL[0] = TL[0]
-  .replace(/(an|a)/, '1')
-  .padStart(2, ' ')
-
-  TL[1] = TL[1]
-  .replace(/(hours|hour)/, 'h')
-  .replace(/(minutes|minute)/, 'm')
-  .replace(/(seconds|second)/, 's')
-
-  commits.push([
-    `${ TL[0] } ${ TL[1] }`,
-    tree[i],
-    subject,
-    colors.cyan('❤ ') + colors.green(log.commiter),
-    colors.gray(date.format('DD MMM HH:mm:ss').toLowerCase()),
-  ])
+  s.render()
 }
 
-s.Main.commit.setData([
-  ['TL', 'GRAPH', 'MESSAGE', 'AUTHOR', 'DATE'],
-  ...commits
-])
-s.Main.commit.setLabel(` ${ colors.green(giv.getNowGitBranch()) } `)
-
-
-function setDiffScreen (compareCommitId: string, comparedCommitId?: string): void {
-  const diff: string[] = comparedCommitId ?
-    giv.getGitDiff(compareCommitId, comparedCommitId)
-    : giv.getGitDiff(compareCommitId)
-
-  s.Main.diff.setContent(
-    giv.coloringGitDiff(diff)
-    .map(x => x[0])
-    .join('\n')
-  )
-
-  const modefiedFiles: Array<string[]> = comparedCommitId ?
-    giv.getGitModifiedFiles(compareCommitId, comparedCommitId)
-    : giv.getGitModifiedFiles(compareCommitId)
-
-  s.Main.modefied.setContent(
-    colors.gray(` ${ modefiedFiles.length } Files`)
-    + `\n${ modefiedFiles.join('\n') }`
-  )
-
-  const contains: string[] = giv.getGitContains(compareCommitId)
-  s.Main.contains.setContent(
-    colors.gray(` ${ contains.length } branches`)
-    + `\n${ contains.join('\n')}`
-  )
-
-  Screen.render()
+// This function is used in the enter event of commit
+function setDiffItems(): void {
+  directive.diff.set(logs[this.selected].id)
+  s.Diff.modefied.focus()
+  dispatch.cheangedMainScreen() // Make sure to move the screen
+  s.show(s.Diff)
 }
 
-gitLog.length > 1 ?
-  setDiffScreen(gitLog[0].id, gitLog[1].id)
-  : setDiffScreen(gitLog[0].id)
+
+/* Set initial items */
+setScreenItems()
+
+
+/*****************************
+* Events
+/****************************/
+
+/* Main screen events */
+s.Main.commit.key('enter', setDiffItems)
 
 s.Main.commit.on('select item', (_: any, index: number) => {
-  index--
-  if (index === 0 && gitLog.length > 1 && index !== gitLog.length - 1) {
-    setDiffScreen(gitLog[index].id, gitLog[index + 1].id)
-  } else {
-    setDiffScreen(gitLog[index].id)
-  }
+  directive.main.modefied.set(logs[index].id)
   s.Main.diff.resetScroll()
 })
 
-Screen.key('n', () => {
-  directive.newBranch.show(s)
+/* Diff screen events */
+s.Diff.modefied.on('select item', function() {
+  s.Diff.diff.resetScroll()
+  // The diff of each file is stored in directive.diff.files
+  s.Diff.diff.setContent(directive.diff.files[this.selected])
+  // 'setJumps()' finds the changed part of the file (-/ +) and records its line number
+  directive.diff.setJumps(this.selected)
+})
+s.Diff.modefied.key('o', () => directive.diff.jump('next'))
+s.Diff.modefied.key('i', () => directive.diff.jump('before'))
+s.Diff.modefied.key('j', () => directive.diff.scrollUp(1))
+s.Diff.modefied.key('k', () => directive.diff.scrollDown(1))
+s.Diff.modefied.key('u', () => directive.diff.scrollUp(10))
+s.Diff.modefied.key('d', () => directive.diff.scrollDown(10))
+s.Diff.modefied.key('g', () => {
+  // Scroll to first line
+  s.Diff.diff.resetScroll()
+  s.render()
+})
+s.Diff.modefied.key('S-g', () => {
+  // Scroll to last line
+  s.Diff.diff.scroll(s.Diff.diff.getScrollHeight())
+  s.render()
+})
+
+/* NewBranch screen events */
+s.key('n', () => {
+  directive.newBranch.show()
   dispatch.cheangedMainScreen()
 })
-s.NewBranch.name.key(['enter'], () => directive.newBranch.register(s))
-s.Main.commit.key('j', () => directive.diff.scrollDown(s))
-s.Main.commit.key('k', () => directive.diff.scrollUp(s))
+s.NewBranch.name.key('enter', () => directive.newBranch.register())
 
-Screen.key('h', () => {
-  directive.help.show(s)
+/* SelectBranch screen events */
+s.key('b', () => {
+  directive.selectBranch.show()
   dispatch.cheangedMainScreen()
 })
-
-Screen.key('b', () => {
-  directive.selectBranch.show(s)
-  dispatch.cheangedMainScreen()
-})
-
 s.SelectBranch.list.key('enter', function() {
-  directive.selectBranch.checkout(s, this.selected)
+  const name = this.value.replace('* ', '')
+  directive.selectBranch.checkout(name)
 })
 
-Screen.key(['escape', 'q', 'C-['], () => {
+/* Help screen events */
+s.key('h', () => {
+  directive.help.show()
+  dispatch.cheangedMainScreen()
+})
+
+
+/* Events common to all screens */
+s.key(['escape', 'q', 'C-['], () => {
   if (state.isMainScreen === false) {
     s.init()
     dispatch.init()
@@ -152,7 +140,4 @@ Screen.key(['escape', 'q', 'C-['], () => {
 
   process.exit(0)
 })
-
-Screen.key(['C-c'], () => process.exit(0))
-
-Screen.render()
+s.key(['C-c'], () => process.exit(0))

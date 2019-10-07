@@ -23,7 +23,11 @@ var r = function (tree) {
     for (var k in tree) {
         t.push(tree[k].join('').trim());
     }
-    return t.reverse();
+    t.reverse();
+    //let max = 0
+    //t.forEach(v => max = v.length > max ? v.length : max)
+    //for (const k in t) t[k] = t[k].padEnd(max, ' ')
+    return t;
 };
 function convertTree(s) {
     var gitTree = s.trim().split('\n').map(function (x) { return x.split(''); });
@@ -140,7 +144,7 @@ function coloringTree(tree, commitId, mergeId) {
             .join('');
         v = v
             .replace('M', colors_1.default.yellow('M'))
-            .replace('*', colors_1.default.green('c'));
+            .replace('*', colors_1.default.cyan('◉'));
         tree[k] = v;
     });
     return tree;

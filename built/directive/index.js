@@ -4,6 +4,7 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./newBranch"));
+__export(require("./main"));
 __export(require("./diff"));
 __export(require("./help"));
 __export(require("./selectBranch"));

@@ -1,30 +1,37 @@
-import Screen from '../screen/screen.module'
-import * as giv from '../giv.modules'
+import Screen from '../screen'
+import * as Git from '../git'
 
-export const selectBranch = {
-  show(s: Screen): void {
-    s.show(s.SelectBranch)
-    s.SelectBranch.checkoutError.hide()
-    s.SelectBranch.list.focus()
-    s.screen.render()
-  },
-  checkout(s: Screen, name: string): void {
-    if (giv.isOkGitCheckout() === false) {
-      s.SelectBranch.checkoutError.show()
-      s.screen.render()
+interface SelectBranch {
+  show(): void
+  checkout(name: string): void
+}
+
+export default class selectBranch implements SelectBranch {
+
+  constructor(
+    public s: Screen
+  ) {}
+
+  show(): void {
+    this.s.show(this.s.SelectBranch)
+    this.s.SelectBranch.checkoutError.hide()
+    this.s.SelectBranch.list.focus()
+    this.s.screen.render()
+  }
+  checkout(name: string): void {
+    if (Git.isOkCheckout() === false) {
+      this.s.SelectBranch.checkoutError.show()
+      this.s.screen.render()
 
       setTimeout(() => {
-        s.SelectBranch.checkoutError.hide()
-        s.screen.render()
+        this.s.SelectBranch.checkoutError.hide()
+        this.s.screen.render()
       }, 3000)
 
       return
     }
 
-    const index = s.SelectBranch.list.getItemIndex(name)
-    giv.checkoutGitBranch(giv.getGitBranches()[index])
-    s.init()
+    Git.checkoutBranch(name)
+    this.s.init()
   }
 }
-
-export default selectBranch

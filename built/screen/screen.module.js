@@ -16,6 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var blessed_contrib_1 = __importDefault(require("blessed-contrib"));
 var Main_1 = __importDefault(require("./Main"));
+var Diff_1 = __importDefault(require("./Diff"));
 var NewBranch_1 = __importDefault(require("./NewBranch"));
 var SelectBranch_1 = __importDefault(require("./SelectBranch"));
 var Help_1 = __importDefault(require("./Help"));
@@ -28,11 +29,13 @@ var Screen = /** @class */ (function () {
             screen: this.screen
         });
         this.Main = new Main_1.default(this.screen, this.grid);
+        this.Diff = new Diff_1.default(this.screen, this.grid);
         this.NewBranch = new NewBranch_1.default(this.screen);
         this.SelectBranch = new SelectBranch_1.default(this.screen, this.grid);
         this.Help = new Help_1.default(this.screen);
         this.all = [
             this.Main,
+            this.Diff,
             this.NewBranch,
             this.SelectBranch,
             this.Help

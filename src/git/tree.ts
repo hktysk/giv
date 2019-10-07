@@ -22,7 +22,12 @@ const r = (tree: Array<string[]>): string[] => {
     t.push(tree[k].join('').trim())
   }
 
-  return t.reverse()
+  t.reverse()
+
+  //let max = 0
+  //t.forEach(v => max = v.length > max ? v.length : max)
+  //for (const k in t) t[k] = t[k].padEnd(max, ' ')
+  return t
 }
 
 export function convertTree(s: string): string[] {
@@ -159,7 +164,7 @@ export function coloringTree(tree: string[], commitId: string[], mergeId: string
 
     v = v
     .replace('M', colors.yellow('M'))
-    .replace('*', colors.green('c'))
+    .replace('*', colors.cyan('◉'))
 
     tree[k] = v
   })

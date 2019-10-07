@@ -25,8 +25,7 @@ exports.selectBranch = {
             }, 3000);
             return;
         }
-        var index = s.SelectBranch.list.getItemIndex(name);
-        giv.checkoutGitBranch(giv.getGitBranches()[index]);
+        giv.checkoutGitBranch(name);
         s.init();
     }
 };

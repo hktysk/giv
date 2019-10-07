@@ -1,13 +1,18 @@
 import blessed from 'blessed'
 import contrib from 'blessed-contrib'
 import Main from './Main'
+import Diff from './Diff'
 import NewBranch from './NewBranch'
 import SelectBranch from './SelectBranch'
 import Help from './Help'
 
-export default class Screen {
+export default class {
 
-  constructor(public screen: blessed.Widgets.Screen) {}
+  constructor(
+    public screen: blessed.Widgets.Screen
+  ) {}
+
+  key = this.screen.key
 
   grid: contrib.grid = new contrib.grid({
     rows: 20,
@@ -16,12 +21,14 @@ export default class Screen {
   })
 
   Main = new Main(this.screen, this.grid)
+  Diff = new Diff(this.screen, this.grid)
   NewBranch  = new NewBranch(this.screen)
   SelectBranch = new SelectBranch(this.screen, this.grid)
   Help = new Help(this.screen)
 
   all = [
     this.Main,
+    this.Diff,
     this.NewBranch,
     this.SelectBranch,
     this.Help
@@ -47,5 +54,9 @@ export default class Screen {
     this.hide()
     this.show(this.Main)
     this.Main.commit.focus()
+  }
+
+  render() {
+    this.screen.render()
   }
 }

@@ -16,24 +16,29 @@ export default class Main implements Frames {
     public grid: contrib.grid
   ) {}
 
-  commit = this.grid.set(0, 0, 10, 20, blessed.listtable, {
+  commit = this.grid.set(0, 0, 13, 20, blessed.list, {
     keys: true,
     mouse: true,
     parent: this.screen,
     label: 'COMMIT',
     width: '48%',
     height: '100%',
-    fg: 'white',
-    selectedFg: 'white',
-    selectedBg: 'black',
+    selectedFg: 'black',
+    selectedBg: 'white',
     align: 'left',
     interactive: 'true',
     scrollable: true,
     alwaysScroll: true,
-    border: { type: 'line', fg: 'white' },
+    border: { type: 'line' },
     style: {
-      focus: {
-        border: { type: 'line', fg: 'white' },
+      fg: 'white',
+      bg: 234,
+      border: {
+        fg: 'cyan',
+        bg: 234
+      },
+      label: {
+        bg: 234
       }
     },
     noCellBorders: true,
@@ -41,22 +46,28 @@ export default class Main implements Frames {
     vi: false
   })
 
-  modefied = this.grid.set(10, 0, 10, 4, blessed.box, {
+  modefied = this.grid.set(13, 0, 7, 20, blessed.box, {
     keys: true,
     parent: this.screen,
-    fg: 'white',
     selectedFg: 'white',
     selectedBg: 'black',
     interactive: 'true',
-    label: 'MODEFIED',
     width: '48%',
     height: '100%',
-    border: { type: 'line', fg: 'cyan' },
-    columnSpacing: 10,
-    columnWidth: [16, 12, 12],
+    border: { type: 'line' },
+    style: {
+      bg: 234,
+      border: {
+        fg: 'cyan',
+        bg: 234
+      },
+      label: {
+        bg: 234
+      }
+    },
   })
 
-  contains = this.grid.set(10, 4, 10, 4, blessed.box, {
+  contains = this.grid.set(0, 0, 0, 0, blessed.box, {
     keys: true,
     parent: this.screen,
     label: 'CONTAINS',
@@ -80,7 +91,7 @@ export default class Main implements Frames {
     vi: true
   })
 
-  diff = this.grid.set(10, 8, 10, 12, blessed.box, {
+  diff = this.grid.set(0, 0, 0, 0, blessed.box, {
     keys: true,
     parent: this.screen,
     fg: 'white',
