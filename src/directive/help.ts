@@ -1,4 +1,4 @@
-import Screen from '../screen/screen.module'
+import Screen from '../screen'
 
 export default class help {
 
@@ -8,6 +8,6 @@ export default class help {
 
   show(): void {
     this.s.show(this.s.Help)
-    this.s.screen.render()
+    this.s.render()
   }
 }

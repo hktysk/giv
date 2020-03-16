@@ -10,17 +10,17 @@ var Main = /** @class */ (function () {
         this.grid = grid;
         this.commit = this.grid.set(0, 0, 13, 20, blessed_1.default.list, {
             keys: true,
-            mouse: true,
+            //mouse: true,
             parent: this.screen,
+            scrollable: true,
+            alwaysScroll: true,
             label: 'COMMIT',
             width: '48%',
             height: '100%',
             selectedFg: 'black',
             selectedBg: 'white',
             align: 'left',
-            interactive: 'true',
-            scrollable: true,
-            alwaysScroll: true,
+            //interactive: false,
             border: { type: 'line' },
             style: {
                 fg: 'white',
@@ -35,7 +35,9 @@ var Main = /** @class */ (function () {
             },
             noCellBorders: true,
             tags: true,
-            vi: false
+            wrap: false,
+            vi: true,
+            search: true
         });
         this.modefied = this.grid.set(13, 0, 7, 20, blessed_1.default.box, {
             keys: true,

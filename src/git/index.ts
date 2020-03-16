@@ -3,22 +3,40 @@ import colors from 'colors'
 import { convertTree } from './tree'
 export * from './tree'
 
+const opts = {
+  maxBuffer: 1024 * 10240
+}
+
 export interface Log {
   id: string
-  commiter: string
+  author: string
   subject: string
   date?: Date
 }
 
 export function getLog(name?: string): Log[] {
-  let sh: string = 'git log --pretty=format:\'{"id": "%h","commiter": "%cN","subject": "%s","date": "%cD"},\''
+  let sh: string = 'git log --pretty=format:\'%H\n%aN\n%s\n%aD\' --author-date-order'
   if (name) sh += ` ${ name }`
-  const log: string = execSync(sh).toString()
-  let r: Log[] = JSON.parse('[' + log.trim().slice(0, -1) + ']')
-  if (execSync('git diff').toString().length > 0) {
+  let log: string[] = execSync(sh, opts).toString().trim().split('\n')
+  let r: Log[] = []
+  while (log.length > 0) {
+    const [id, author, subject, date] = log
+    r.push({
+      id,
+      author,
+      /*
+       '{' And '}' need to be escaped.
+        Because an error occurs when adding to the list of blessed
+      */
+      subject: subject.replace(/{/g, '\\{').replace(/}/g, '\\}'),
+      date: new Date(date)
+    })
+    log = log.slice(4)
+  }
+  if (!name && execSync('git diff', opts).toString().length > 0) {
     r.unshift({
       id: 'unknown',
-      commiter: 'unknown',
+      author: 'unknown',
       subject: 'unknown'
     })
   }
@@ -27,32 +45,29 @@ export function getLog(name?: string): Log[] {
 }
 
 export function getTree(name?: string): string[] {
-  let sh = 'git log --graph --format="%x09"'
+  let sh = 'git log --oneline --author-date-order --pretty=format:\'%H\n%P\' --date=raw'
   if (name) sh += ` ${ name }`
-  const gitTree: string = execSync(sh).toString().trim()
-  return convertTree(gitTree)
+  const gitTree: string = execSync(sh, opts).toString().trim()
+  return convertTree(gitTree, getMerge(name && name))
 }
 
-export interface Merge {
-  id: string
-}
-export function getMerge(name?: string): Merge[] {
-  let sh: string = 'git log --merges --pretty=format:\'{"id": "%h"},\''
+export function getMerge(name?: string): string[] {
+  let sh: string = 'git log --merges --pretty=format:\'"%H",\''
   if (name) sh += ` ${ name }`
-  const merges: string = execSync(sh).toString()
+  const merges: string = execSync(sh, opts).toString()
   return JSON.parse('[' + merges.trim().slice(0, -1) + ']')
 }
 
 export function getAllBranches(): string[] {
   const sh: string = `git branch --sort=-authordate`
-  const branches: string = execSync(sh).toString()
+  const branches: string = execSync(sh, opts).toString()
   return branches.trim().split('\n')
 }
 
-export function getDiff(id: string): string[] {
-  const sh: string = id === 'unknown' ? 'git diff -U9999' : `git show -U9999 ${ id }`
+export function getDiff(id: string): Array<string[]> {
+  const sh: string = id === 'unknown' ? 'git diff -U9999 --pretty=fuller' : `git show -U9999 --pretty=fuller ${ id }`
 
-  let diff: string[] = execSync(sh).toString().trim().split('\n')
+  let diff: string[] = execSync(sh, opts).toString().trim().split('\n')
   diff.reverse()
   let d: Array<string[]> = []
   let t: string[] = []
@@ -72,7 +87,7 @@ export function getDiff(id: string): string[] {
   d = d.map(x => [...t, ...x])
 
   d.reverse()
-  return d.map(x => coloringDiff(x).join('\n'))
+  return d
 }
 
 export function coloringDiff(diff: string[]): string[] {
@@ -109,32 +124,32 @@ export function getModified(id: string): string[] {
   const sh: string = id === 'unknown' ?
     `git diff --name-only`
     : `git show ${ id } --name-only --oneline`
-  const files: string = execSync(sh).toString()
-  const [, ...modefied] = files.trim().split('\n').map(x => colors.white('- ') + colors.cyan(x))
-  return modefied
+  const files: string = execSync(sh, opts).toString()
+  const modefied = files.trim().split('\n').map(x => colors.white('- ') + colors.cyan(x))
+  return id === 'unknown' ? modefied : modefied.slice(1)
 }
 
 export function createNewBranch(name: string): void {
   const sh: string = `git checkout -b ${ name }`
-  exec(sh)
+  exec(sh, opts)
 }
 
 export function checkoutBranch(name: string): void {
   const sh: string = `git checkout ${ name }`
-  execSync(sh)
+  execSync(sh, opts)
 }
 
 export function getNowBranch(): string {
   const sh: string = 'git rev-parse --abbrev-ref HEAD 2> /dev/null'
-  return execSync(sh).toString().trim()
+  return execSync(sh, opts).toString().trim()
 }
 
 export function isOkCheckout(): boolean {
   const sh: string = 'git diff --name-only'
-  return (execSync(sh).toString().trim().length === 0)
+  return (execSync(sh, opts).toString().trim().length === 0)
 }
 
 export function getContains(id: string): string[] {
   const sh: string = `git branch --contains ${ id }`
-  return execSync(sh).toString().split('\n')
+  return execSync(sh, opts).toString().split('\n')
 }

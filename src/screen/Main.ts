@@ -18,17 +18,17 @@ export default class Main implements Frames {
 
   commit = this.grid.set(0, 0, 13, 20, blessed.list, {
     keys: true,
-    mouse: true,
+    //mouse: true,
     parent: this.screen,
+    scrollable: true,
+    alwaysScroll: true,
     label: 'COMMIT',
     width: '48%',
     height: '100%',
     selectedFg: 'black',
     selectedBg: 'white',
     align: 'left',
-    interactive: 'true',
-    scrollable: true,
-    alwaysScroll: true,
+    //interactive: false,
     border: { type: 'line' },
     style: {
       fg: 'white',
@@ -43,7 +43,9 @@ export default class Main implements Frames {
     },
     noCellBorders: true,
     tags: true, // 色付けする場合は必須,
-    vi: false
+    wrap: false,
+    vi: true,
+    search: true
   })
 
   modefied = this.grid.set(13, 0, 7, 20, blessed.box, {

@@ -16,16 +16,16 @@ export default class selectBranch implements SelectBranch {
     this.s.show(this.s.SelectBranch)
     this.s.SelectBranch.checkoutError.hide()
     this.s.SelectBranch.list.focus()
-    this.s.screen.render()
+    this.s.render()
   }
   checkout(name: string): void {
     if (Git.isOkCheckout() === false) {
       this.s.SelectBranch.checkoutError.show()
-      this.s.screen.render()
+      this.s.render()
 
       setTimeout(() => {
         this.s.SelectBranch.checkoutError.hide()
-        this.s.screen.render()
+        this.s.render()
       }, 3000)
 
       return

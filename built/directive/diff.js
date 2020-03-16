@@ -6,31 +6,32 @@ var __importStar = (this && this.__importStar) || function (mod) {
     result["default"] = mod;
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-var giv = __importStar(require("../giv.modules"));
-var colors_1 = __importDefault(require("colors"));
-exports.diff = {
-    diff: [],
-    jumps: [],
-    set: function (s, id) {
-        this.diff = giv.getGitDiff(id);
-        s.Diff.diff.resetScroll();
-        s.Diff.diff.setContent(giv.coloringGitDiff(this.diff[0]).join('\n'));
+var Git = __importStar(require("../git"));
+var diff = /** @class */ (function () {
+    function diff(s) {
+        this.s = s;
+        this.files = [];
+        this.jumps = [];
+        this.interval = 8;
+    }
+    diff.prototype.set = function (id) {
+        var _this = this;
+        this.files = Git.getDiff(id);
+        this.s.Diff.diff.resetScroll();
+        this.s.Diff.diff.setContent(Git.coloringDiff(this.files[0]).join('\n'));
         this.setJumps(0);
-        var modefiedFiles = giv.getGitModifiedFiles(id);
-        s.Diff.modefied.clearItems();
-        modefiedFiles.forEach(function (v) { return s.Diff.modefied.addItem(colors_1.default.cyan(v[0])); });
-        s.screen.render();
-    },
-    setJumps: function (index) {
+        var modefiedFiles = Git.getModified(id);
+        this.s.Diff.modefied.clearItems();
+        modefiedFiles.forEach(function (v) { return _this.s.Diff.modefied.addItem(v); });
+        this.s.render();
+    };
+    diff.prototype.setJumps = function (index) {
         var _this = this;
         this.jumps = [];
         var isRowNumber = false;
         var isSymbol = false;
-        this.diff[index].forEach(function (v, k) {
+        this.files[index].forEach(function (v, k) {
             if (isRowNumber === true) {
                 if (v.charAt(0) === '-' || v.charAt(0) === '+') {
                     if (isSymbol === false) {
@@ -45,22 +46,48 @@ exports.diff = {
             if (v.slice(0, 2) === '@@')
                 isRowNumber = true;
         });
-    },
-    iterationCount: 10,
-    interval: 8,
-    scroll: function (s, direction) {
-        for (var i = 1; i <= this.iterationCount; i++) {
+    };
+    diff.prototype.jump = function (direction) {
+        var now = this.s.Diff.diff.getScroll();
+        // TODO: findだと一番最初と一番最後しか該当しないので書き直す
+        var index = 0;
+        var diff = now;
+        this.jumps.forEach(function (v, k) {
+            var abs = Math.abs(v - now);
+            if (abs < diff) {
+                diff = abs;
+                index = k;
+            }
+        });
+        direction === 'next' ? index++ : index--;
+        var jumpLine;
+        if (index === this.jumps.length && direction === 'next') {
+            jumpLine = this.jumps[0];
+        }
+        else if (index === -1 && direction === 'before') {
+            jumpLine = this.jumps[this.jumps.length - 1];
+        }
+        else {
+            jumpLine = this.jumps[index];
+        }
+        this.s.Diff.diff.scrollTo(jumpLine);
+        this.s.render();
+    };
+    diff.prototype.scroll = function (direction, iteration) {
+        var _this = this;
+        for (var i = 1; i <= iteration; i++) {
             setTimeout(function () {
-                s.Diff.diff.scroll(direction === 'down' ? 1 : -1);
-                s.screen.render();
+                _this.s.Diff.diff.scroll(direction === 'down' ? 1 : -1);
+                _this.s.render();
             }, i * this.interval);
         }
-    },
-    scrollUp: function (s) {
-        this.scroll(s, 'up');
-    },
-    scrollDown: function (s) {
-        this.scroll(s, 'down');
-    },
-};
-exports.default = exports.diff;
+    };
+    diff.prototype.scrollUp = function (iteration) {
+        this.scroll('up', iteration);
+    };
+    diff.prototype.scrollDown = function (iteration) {
+        this.scroll('down', iteration);
+    };
+    return diff;
+}());
+exports.default = diff;

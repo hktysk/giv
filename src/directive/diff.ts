@@ -2,7 +2,7 @@ import Screen from '../screen'
 import * as Git from '../git'
 
 interface Diff {
-  files: string[]
+  files: Array<string[]>
   jumps: number[]
   interval: number
 
@@ -28,14 +28,14 @@ export default class diff implements Diff {
     this.files = Git.getDiff(id)
 
     this.s.Diff.diff.resetScroll()
-    this.s.Diff.diff.setContent(this.files[0])
+    this.s.Diff.diff.setContent(Git.coloringDiff(this.files[0]).join('\n'))
     this.setJumps(0)
 
     const modefiedFiles: string[] = Git.getModified(id)
     this.s.Diff.modefied.clearItems()
-    modefiedFiles.forEach(v => this.s.Diff.modefied.addItem([v]))
+    modefiedFiles.forEach(v => this.s.Diff.modefied.addItem(v))
 
-    this.s.screen.render()
+    this.s.render()
   }
 
   setJumps(index: number): void {
@@ -59,22 +59,34 @@ export default class diff implements Diff {
 
   jump(direction: string): void {
     const now: number = this.s.Diff.diff.getScroll()
-    const jumpLine: number = this.jumps.find((x: number) => {
-      direction === 'before' ? x < now : x > now
+    // TODO: findだと一番最初と一番最後しか該当しないので書き直す
+    let index: number = 0
+    let diff: number = now
+    this.jumps.forEach((v, k) => {
+      const abs = Math.abs(v - now)
+       if (abs < diff) {
+         diff = abs
+         index = k
+       }
     })
-    this.s.Diff.diff.scrollTo(
-      jumpLine ?
-        jumpLine
-        : direction === 'before' ? this.jumps[this.jumps.length - 1] : this.jumps[0]
-    )
-    this.s.screen.render()
+    direction === 'next' ? index++ : index--;
+    let jumpLine: number
+    if (index === this.jumps.length && direction === 'next') {
+      jumpLine = this.jumps[0]
+    } else if (index === -1 && direction === 'before') {
+      jumpLine = this.jumps[this.jumps.length - 1]
+    } else {
+      jumpLine = this.jumps[index]
+    }
+    this.s.Diff.diff.scrollTo(jumpLine)
+    this.s.render()
   }
 
   scroll(direction: string, iteration: number): void {
     for (let i = 1; i <= iteration; i++) {
       setTimeout(() => {
         this.s.Diff.diff.scroll(direction === 'down' ? 1 : -1)
-        this.s.screen.render()
+        this.s.render()
       }, i * this.interval)
     }
   }

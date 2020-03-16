@@ -7,26 +7,31 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var giv = __importStar(require("../giv.modules"));
-exports.selectBranch = {
-    show: function (s) {
-        s.show(s.SelectBranch);
-        s.SelectBranch.checkoutError.hide();
-        s.SelectBranch.list.focus();
-        s.screen.render();
-    },
-    checkout: function (s, name) {
-        if (giv.isOkGitCheckout() === false) {
-            s.SelectBranch.checkoutError.show();
-            s.screen.render();
+var Git = __importStar(require("../git"));
+var selectBranch = /** @class */ (function () {
+    function selectBranch(s) {
+        this.s = s;
+    }
+    selectBranch.prototype.show = function () {
+        this.s.show(this.s.SelectBranch);
+        this.s.SelectBranch.checkoutError.hide();
+        this.s.SelectBranch.list.focus();
+        this.s.render();
+    };
+    selectBranch.prototype.checkout = function (name) {
+        var _this = this;
+        if (Git.isOkCheckout() === false) {
+            this.s.SelectBranch.checkoutError.show();
+            this.s.render();
             setTimeout(function () {
-                s.SelectBranch.checkoutError.hide();
-                s.screen.render();
+                _this.s.SelectBranch.checkoutError.hide();
+                _this.s.render();
             }, 3000);
             return;
         }
-        giv.checkoutGitBranch(name);
-        s.init();
-    }
-};
-exports.default = exports.selectBranch;
+        Git.checkoutBranch(name);
+        this.s.init();
+    };
+    return selectBranch;
+}());
+exports.default = selectBranch;

@@ -1,9 +1,13 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.help = {
-    show: function (s) {
-        s.show(s.Help);
-        s.screen.render();
+var help = /** @class */ (function () {
+    function help(s) {
+        this.s = s;
     }
-};
-exports.default = exports.help;
+    help.prototype.show = function () {
+        this.s.show(this.s.Help);
+        this.s.render();
+    };
+    return help;
+}());
+exports.default = help;

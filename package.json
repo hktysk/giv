@@ -4,7 +4,7 @@
   "description": "simple viewer for git",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "tsc": "npx tsc --target es5 --lib es6,dom --esModuleInterop --downlevelIteration --outDir ./built --rootDir ./src",
     "start": "node built/index.js"
   },
@@ -17,6 +17,9 @@
     "blessed-contrib": "^4.8.16",
     "child_process": "^1.0.2",
     "colors": "^1.3.3",
-    "moment": "^2.24.0"
+    "escape-json-node": "^2.0.0",
+    "jest": "^24.9.0",
+    "moment": "^2.24.0",
+    "reload": "^3.0.2"
   }
 }

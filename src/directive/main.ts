@@ -4,6 +4,7 @@ import colors from 'colors'
 import moment from 'moment'
 
 interface Main {
+  commits: string[]
   commit: {
     set(logs: Git.Log[], tree: string[]) :void
   }
@@ -18,21 +19,23 @@ export default class main implements Main {
     public s: Screen
   ) {}
 
+  commits: string[] = []
+
   commit = {
-    set(logs: Git.Log[], tree: string[]): void {
-      let commits: Array<string[]> = []
-      const maxAuthorLength: number = Math.max(...logs.map(x => x.commiter.length))
+    set: (logs: Git.Log[], tree: string[], name?: string): void => {
+      this.commits = []
+      const maxAuthorLength: number = Math.max(...logs.map(x => x.author.length))
 
       logs.forEach((log: Git.Log, k: number) => {
-        let { id, commiter, subject, date } = log
+        let { id, author, subject, date } = log
 
         if (id === 'unknown') {
-          commits.push(['unknown(unstaged changes)'])
+          this.commits.push('unknown(unstaged changes)')
           tree.unshift('')
           return
         }
 
-        commiter = commiter.padEnd(maxAuthorLength, ' ')
+        author = author.padEnd(maxAuthorLength, ' ')
 
         subject = tree[k].indexOf('M') > -1 ?
           [colors.yellow('✔'), colors.cyan(subject)].join(' ')
@@ -48,28 +51,30 @@ export default class main implements Main {
         .padStart(2, ' ')
 
         timeLine[1] = timeLine[1]
-        .replace(/(years|year)/, 'y')
+        .replace(/(years|year)/, 'Y')
+        .replace(/(months|month)/, 'M')
         .replace(/(days|day)/, 'd')
         .replace(/(hours|hour)/, 'h')
         .replace(/(minutes|minute)/, 'm')
         .replace(/(seconds|second)/, 's')
 
-        commits.push([
-          [colors.cyan('❤'), colors.white(commiter)].join(' ') + ' '.repeat(2),
+        this.commits.push([
+          [colors.cyan('❤'), colors.white(author)].join(' ') + ' '.repeat(2),
           [colors.cyan(timeLine[0]), colors.cyan(timeLine[1])].join(' ') + ' '.repeat(5),
           tree[k].replace(/M/, '✔') + ' ',
           subject,
-        ])
+        ].join(''))
       })
 
       this.s.Main.commit.clearItems()
-      commits.forEach(v => this.s.Main.commit.addItem(v.join('')))
-      this.s.Main.commit.setLabel(` ${ colors.cyan(Git.getNowBranch()) } `)
+      this.commits.forEach(v => this.s.Main.commit.addItem(v))
+      const label = name ? colors.cyan(name) + colors.white('(view mode)') : colors.cyan(Git.getNowBranch())
+      this.s.Main.commit.setLabel(` ${ label } `)
     }
   }
 
   modefied = {
-    set(id: string): void {
+    set: (id: string): void => {
       const modefiedFiles: string[] = Git.getModified(id)
 
       this.s.Main.modefied.setContent(
@@ -77,7 +82,7 @@ export default class main implements Main {
         + `\n${ modefiedFiles.join('\n') }`
       )
 
-      this.s.screen.render()
+      this.s.render()
     }
   }
 }

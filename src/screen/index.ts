@@ -12,7 +12,9 @@ export default class {
     public screen: blessed.Widgets.Screen
   ) {}
 
-  key = this.screen.key
+  key(key: string | string[], callback: any) {
+    this.screen.key(key, callback)
+  }
 
   grid: contrib.grid = new contrib.grid({
     rows: 20,
@@ -52,6 +54,7 @@ export default class {
 
   init() {
     this.hide()
+    this.Diff.diff.setContent('')
     this.show(this.Main)
     this.Main.commit.focus()
   }

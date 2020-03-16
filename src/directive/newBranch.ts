@@ -18,7 +18,7 @@ export default class newBranch implements NewBranch {
     this.s.NewBranch.emptyErrorText.hide()
     this.s.NewBranch.registerdErrorText.hide()
     this.s.NewBranch.name.focus()
-    this.s.screen.render()
+    this.s.render()
   }
 
   register(): void {
@@ -26,7 +26,7 @@ export default class newBranch implements NewBranch {
 
     this.s.NewBranch.nameExplanation.hide()
     this.s.NewBranch.backExplanation.hide()
-    this.s.screen.render()
+    this.s.render()
 
     const branches: string[] = Git.getAllBranches().map(x => x.replace('*', '').trim())
 
@@ -38,7 +38,7 @@ export default class newBranch implements NewBranch {
       Git.createNewBranch(name)
       this.s.NewBranch.name.hide()
       this.s.NewBranch.creationSuccessText.show()
-      this.s.screen.render()
+      this.s.render()
 
       setTimeout(() => {
         this.s.init()
@@ -48,7 +48,7 @@ export default class newBranch implements NewBranch {
       return
     }
 
-    this.s.screen.render()
+    this.s.render()
     setTimeout(this.show, 2000)
   }
 }

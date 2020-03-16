@@ -7,41 +7,46 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var giv = __importStar(require("../giv.modules"));
-exports.newBranch = {
-    show: function (s) {
-        s.show(s.NewBranch);
-        s.NewBranch.creationSuccessText.hide();
-        s.NewBranch.emptyErrorText.hide();
-        s.NewBranch.registerdErrorText.hide();
-        s.NewBranch.name.focus();
-        s.screen.render();
-    },
-    register: function (s) {
-        var name = s.NewBranch.name.value.trim();
-        s.NewBranch.nameExplanation.hide();
-        s.NewBranch.backExplanation.hide();
-        s.screen.render();
-        var branches = giv.getGitBranches().map(function (x) { return x.replace('*', '').trim(); });
+var Git = __importStar(require("../git"));
+var newBranch = /** @class */ (function () {
+    function newBranch(s) {
+        this.s = s;
+    }
+    newBranch.prototype.show = function () {
+        this.s.show(this.s.NewBranch);
+        this.s.NewBranch.creationSuccessText.hide();
+        this.s.NewBranch.emptyErrorText.hide();
+        this.s.NewBranch.registerdErrorText.hide();
+        this.s.NewBranch.name.focus();
+        this.s.render();
+    };
+    newBranch.prototype.register = function () {
+        var _this = this;
+        var name = this.s.NewBranch.name.value.trim();
+        this.s.NewBranch.nameExplanation.hide();
+        this.s.NewBranch.backExplanation.hide();
+        this.s.render();
+        var branches = Git.getAllBranches().map(function (x) { return x.replace('*', '').trim(); });
         if (branches.indexOf(name) > -1) {
-            s.NewBranch.registerdErrorText.show();
+            this.s.NewBranch.registerdErrorText.show();
         }
         else if (name.length === 0) {
-            s.NewBranch.emptyErrorText.show();
+            this.s.NewBranch.emptyErrorText.show();
         }
         else {
-            giv.createGitNewBranch(name);
-            s.NewBranch.name.hide();
-            s.NewBranch.creationSuccessText.show();
-            s.screen.render();
+            Git.createNewBranch(name);
+            this.s.NewBranch.name.hide();
+            this.s.NewBranch.creationSuccessText.show();
+            this.s.render();
             setTimeout(function () {
-                s.init();
-                s.NewBranch.name.value = '';
+                _this.s.init();
+                _this.s.NewBranch.name.value = '';
             }, 2000);
             return;
         }
-        s.screen.render();
+        this.s.render();
         setTimeout(this.show, 2000);
-    }
-};
-exports.default = exports.newBranch;
+    };
+    return newBranch;
+}());
+exports.default = newBranch;
